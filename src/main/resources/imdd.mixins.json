@@ -2,7 +2,7 @@
   "required": true,
   "package": "br.com.irmandade.imdd.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["ItemEntityMixin"],
+  "mixins": ["ItemEntityMixin", "LivingEntityEquipMixin"],
   "client": ["client.LivingEntityRendererMixin"],
   "injectors": { "defaultRequire": 1 }
 }

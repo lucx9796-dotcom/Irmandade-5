@@ -28,12 +28,16 @@ public class FrostedMagmaBlock extends MagmaBlock {
 
     @Override
     protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        int age = state.get(AGE);
-        if (age < 3) {
-            world.setBlockState(pos, state.with(AGE, age + 1), Block.NOTIFY_LISTENERS);
-            world.scheduleBlockTick(pos, this, 20 + random.nextInt(15));
-        } else {
-            world.setBlockState(pos, Blocks.LAVA.getDefaultState());
+        // Igual ao frosted ice: a cada 20-40 ticks há 1/3 de chance de avançar um estágio
+        if (random.nextInt(3) == 0) {
+            int age = state.get(AGE);
+            if (age < 3) {
+                world.setBlockState(pos, state.with(AGE, age + 1), Block.NOTIFY_LISTENERS);
+            } else {
+                world.setBlockState(pos, Blocks.LAVA.getDefaultState());
+                return;
+            }
         }
+        world.scheduleBlockTick(pos, this, 20 + random.nextInt(21));
     }
 }

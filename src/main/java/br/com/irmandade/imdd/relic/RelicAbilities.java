@@ -204,7 +204,7 @@ public final class RelicAbilities {
                 if (st.isOf(Blocks.LAVA) && st.getFluidState().isStill() && w.getBlockState(pos.up()).isAir()) {
                     BlockPos fixed = pos.toImmutable();
                     w.setBlockState(fixed, ModBlocks.FROSTED_MAGMA.getDefaultState());
-                    w.scheduleBlockTick(fixed, ModBlocks.FROSTED_MAGMA, 20 + p.getRandom().nextInt(15));
+                    w.scheduleBlockTick(fixed, ModBlocks.FROSTED_MAGMA, 20 + p.getRandom().nextInt(21));
                 }
             }
         }
