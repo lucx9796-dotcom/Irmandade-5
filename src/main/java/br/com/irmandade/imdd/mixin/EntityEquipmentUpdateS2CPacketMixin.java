@@ -16,7 +16,7 @@ import java.util.List;
 public abstract class EntityEquipmentUpdateS2CPacketMixin {
 
     @ModifyVariable(method = "<init>(ILjava/util/List;)V", at = @At("HEAD"), argsOnly = true, require = 0)
-    private List<Pair<EquipmentSlot, ItemStack>> imdd$mascarar(List<Pair<EquipmentSlot, ItemStack>> list, int id) {
+    private static List<Pair<EquipmentSlot, ItemStack>> imdd$mascarar(List<Pair<EquipmentSlot, ItemStack>> list, int id) {
         return RelicAbilities.MASKED_IDS.contains(id) ? RelicAbilities.maskEquipment(list) : list;
     }
 }
