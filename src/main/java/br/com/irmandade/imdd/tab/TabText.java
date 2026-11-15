@@ -55,6 +55,42 @@ public final class TabText {
         return root;
     }
 
+    /** Largura aproximada em pixels na fonte padrão (negrito soma +1 por caractere). */
+    public static int width(String in) {
+        int w = 0;
+        boolean bold = false;
+        int i = 0;
+        while (i < in.length()) {
+            char c = in.charAt(i);
+            if (c == '&' && i + 1 < in.length()) {
+                char n = Character.toLowerCase(in.charAt(i + 1));
+                if (n == '#' && i + 8 <= in.length() && isHex(in.substring(i + 2, i + 8))) { bold = false; i += 8; continue; }
+                if ("0123456789abcdef".indexOf(n) >= 0) { bold = false; i += 2; continue; }
+                if ("lonmkr".indexOf(n) >= 0) {
+                    if (n == 'l') bold = true;
+                    else if (n == 'r') bold = false;
+                    i += 2;
+                    continue;
+                }
+            }
+            w += charWidth(c) + (bold ? 1 : 0);
+            i++;
+        }
+        return w;
+    }
+
+    private static int charWidth(char c) {
+        switch (c) {
+            case ' ': return 4;
+            case '!': case ',': case '.': case ':': case ';': case '|': case 'i': return 2;
+            case 39: case '`': case 'l': return 3; // 39 = aspa simples
+            case 'I': case '[': case ']': case 't': return 4;
+            case '"': case '(': case ')': case '*': case '<': case '>': case 'f': case 'k': case '{': case '}': return 5;
+            case '@': case '~': return 7;
+            default: return 6;
+        }
+    }
+
     private static void flush(MutableText root, StringBuilder buf, Style style) {
         if (buf.length() == 0) return;
         root.append(Text.literal(buf.toString()).setStyle(style));

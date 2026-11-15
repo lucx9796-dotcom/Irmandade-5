@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * Linhas do tab (config/imdd/tab.json). Códigos: &cores, &#RRGGBB, &l negrito...
  * Placeholders: %ping% %tps% %player% %online% %expurgo_time%
+ * A linha %linha% desenha uma linha reta contínua (ciano) cobrindo a largura do tab; use "&c%linha%" para outra cor.
  * A linha especial %expurgo% vira "Dia do Expurgo" + contagem (só aparece quando o Expurgo está ativo).
  * O "ポ" do logo é o caractere do resource pack do servidor.
  */
@@ -30,12 +31,16 @@ public final class TabConfig {
     public static void defaults() {
         HEADER.clear();
         FOOTER.clear();
+        HEADER.add("");
+        HEADER.add("");
         HEADER.add("&fポ");
+        HEADER.add("");
+        HEADER.add("");
         HEADER.add("%expurgo%");
-        HEADER.add("&b━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        FOOTER.add("&b━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        HEADER.add("%linha%");
+        FOOTER.add("%linha%");
         FOOTER.add("&7Ping: &a%ping%ms &f– &7TPS: &a%tps%");
-        FOOTER.add("&7Feito por: &bLucxMC_ &8| &7Cupom: &bIRMANDADE");
+        FOOTER.add("&7Feito por: &bLucxMC_ &8| &7Cupom: &b&lIRMANDADE");
         FOOTER.add("&7Servidor: &bEnxadaHost");
         FOOTER.add("");
         FOOTER.add("&7irmandade.gg");
@@ -50,12 +55,17 @@ public final class TabConfig {
             JsonObject o = GSON.fromJson(Files.readString(f), JsonObject.class);
             HEADER.clear();
             FOOTER.clear();
-            for (var e : o.getAsJsonArray("header")) HEADER.add(e.getAsString());
-            for (var e : o.getAsJsonArray("footer")) FOOTER.add(e.getAsString());
+            for (var e : o.getAsJsonArray("header")) HEADER.add(migrate(e.getAsString()));
+            for (var e : o.getAsJsonArray("footer")) FOOTER.add(migrate(e.getAsString()));
         } catch (Exception e) {
             Imdd.LOGGER.error("Falha ao ler tab.json (usando padrão)", e);
             defaults();
         }
+    }
+
+    /** Linhas antigas feitas de "━" viram a linha contínua %linha%. */
+    private static String migrate(String s) {
+        return s.contains("━━") ? "%linha%" : s;
     }
 
     public static void save() {
