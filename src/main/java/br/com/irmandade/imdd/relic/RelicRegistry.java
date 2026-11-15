@@ -9,7 +9,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryWrapper;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * As relíquias são definidas com a MESMA sintaxe do /give (1.21.5+), uma por linha: id|item[componentes].
@@ -19,6 +21,7 @@ import java.util.List;
 public final class RelicRegistry {
     public static final String KEY = "imdd_relic";
     private static final List<ItemStack> STACKS = new ArrayList<>();
+    private static final Map<String, ItemStack> BY_ID = new LinkedHashMap<>();
 
     private static final String DEFINITIONS = """
 bizonho|stick[custom_name=["",{"text":"Relíquia do Bizonho","bold":true,"underlined":true,"color":"#b5853f"}],enchantments={knockback:50},unbreakable={},tooltip_display={hidden_components:[attribute_modifiers,unbreakable]}]
@@ -47,6 +50,7 @@ nether|golden_helmet[custom_name=["",{"text":"Relíquia do Nether","bold":true,"
 
     public static void load(RegistryWrapper.WrapperLookup lookup) {
         STACKS.clear();
+        BY_ID.clear();
         ItemStringReader reader = new ItemStringReader(lookup);
         for (String raw : DEFINITIONS.split("\n")) {
             String line = raw.strip();
@@ -56,7 +60,9 @@ nether|golden_helmet[custom_name=["",{"text":"Relíquia do Nether","bold":true,"
             String spec = line.substring(sep + 1).replaceFirst("\\[", "[custom_data={" + KEY + ":\"" + id + "\"},");
             try {
                 ItemStringReader.ItemResult r = reader.consume(new StringReader(spec));
-                STACKS.add(new ItemStack(r.item(), 1, r.components()));
+                ItemStack made = new ItemStack(r.item(), 1, r.components());
+                STACKS.add(made);
+                BY_ID.put(id, made);
             } catch (Exception e) {
                 Imdd.LOGGER.error("Relíquia '{}' inválida, slot ficará vazio: {}", id, e.getMessage());
                 STACKS.add(ItemStack.EMPTY);
@@ -74,6 +80,17 @@ nether|golden_helmet[custom_name=["",{"text":"Relíquia do Nether","bold":true,"
         if (data == null) return "";
         return data.copyNbt().getString(KEY, "");
     }
+
+    /** Ids de todas as relíquias carregadas, na ordem dos slots. */
+    public static List<String> ids() { return new ArrayList<>(BY_ID.keySet()); }
+
+    /** Cópia nova da relíquia (ou ItemStack.EMPTY se o id não existir). */
+    public static ItemStack copyOf(String id) {
+        ItemStack s = BY_ID.get(id);
+        return s == null ? ItemStack.EMPTY : s.copy();
+    }
+
+    public static boolean isRelic(ItemStack stack) { return !idOf(stack).isEmpty(); }
 
     public static boolean is(ItemStack stack, String id) { return id.equals(idOf(stack)); }
 }

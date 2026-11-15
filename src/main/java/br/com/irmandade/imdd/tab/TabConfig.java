@@ -31,11 +31,12 @@ public final class TabConfig {
     public static void defaults() {
         HEADER.clear();
         FOOTER.clear();
-        HEADER.add("");
-        HEADER.add("");
+        HEADER.add("&f");
+        HEADER.add("&f");
+        HEADER.add("&f");
+        HEADER.add("&f");
         HEADER.add("&fポ");
-        HEADER.add("");
-        HEADER.add("");
+        HEADER.add("&f");
         HEADER.add("%expurgo%");
         HEADER.add("%linha%");
         FOOTER.add("%linha%");

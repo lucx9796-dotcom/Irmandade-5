@@ -16,6 +16,11 @@ public class ImddClient implements ClientModInitializer {
     private static final String LINE2 = "-. .. -. --. ..- . -- / . ... - .- / ... . --. ..- .-. --- /";
     private static volatile long endMs = 0;
 
+    /** true enquanto o Dia do Expurgo está ativo (o servidor envia o tempo restante). */
+    public static boolean expurgoActive() {
+        return endMs > System.currentTimeMillis();
+    }
+
     @Override
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(ExpurgoPayload.ID, (payload, context) ->

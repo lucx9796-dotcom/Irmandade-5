@@ -23,6 +23,7 @@ public class Imdd implements ModInitializer {
     @Override
     public void onInitialize() {
         ModBlocks.register();
+        br.com.irmandade.imdd.relic.ModRecipes.register();
         SpyEffect.register();
         PayloadTypeRegistry.playS2C().register(ExpurgoPayload.ID, ExpurgoPayload.CODEC);
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> { RelicsCommand.register(dispatcher); ExpurgoCommand.register(dispatcher); br.com.irmandade.imdd.tab.TabCommand.register(dispatcher); });
@@ -30,6 +31,7 @@ public class Imdd implements ModInitializer {
         RelicEffects.init();
         RelicAbilities.init();
         Expurgo.init();
+        br.com.irmandade.imdd.relic.RelicDelivery.init();
         LOGGER.info("Irmandade (IMDD) carregado.");
     }
 }
