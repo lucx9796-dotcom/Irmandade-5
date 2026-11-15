@@ -37,7 +37,7 @@ public abstract class ItemEntityMixin {
     private void imdd$expurgo(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         ItemEntity self = (ItemEntity) (Object) this;
         if (self.isRemoved() && self.getStack().isOf(Items.NETHER_STAR) && source.isIn(DamageTypeTags.IS_FIRE)) {
-            Expurgo.onNetherStarBurned(world, self.getPos(), self.getStack().getCount());
+            Expurgo.onNetherStarBurned(world, new net.minecraft.util.math.Vec3d(self.getX(), self.getY(), self.getZ()), self.getStack().getCount());
         }
     }
 }

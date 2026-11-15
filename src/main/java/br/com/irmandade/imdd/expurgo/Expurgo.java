@@ -133,7 +133,11 @@ public final class Expurgo {
     }
 
     static void run(MinecraftServer s, String command) {
-        s.getCommandManager().executeWithPrefix(s.getCommandSource().withSilent(), command);
+        try {
+            s.getCommandManager().getDispatcher().execute(command, s.getCommandSource().withSilent());
+        } catch (Exception e) {
+            Imdd.LOGGER.error("Falha ao executar comando interno '{}': {}", command, e.getMessage());
+        }
     }
 
     private static void load() {

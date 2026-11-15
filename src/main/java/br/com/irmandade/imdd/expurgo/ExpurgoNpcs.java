@@ -6,7 +6,7 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemScatterer;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.registry.RegistryOps;
