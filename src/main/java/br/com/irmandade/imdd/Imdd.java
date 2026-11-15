@@ -1,0 +1,32 @@
+package br.com.irmandade.imdd;
+
+import br.com.irmandade.imdd.expurgo.Expurgo;
+import br.com.irmandade.imdd.net.ExpurgoPayload;
+import br.com.irmandade.imdd.relic.RelicAbilities;
+import br.com.irmandade.imdd.relic.RelicEffects;
+import br.com.irmandade.imdd.relic.RelicRegistry;
+import br.com.irmandade.imdd.relic.RelicsCommand;
+import br.com.irmandade.imdd.relic.SpyEffect;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class Imdd implements ModInitializer {
+    public static final String MOD_ID = "imdd";
+    public static final Logger LOGGER = LoggerFactory.getLogger("IMDD");
+
+    @Override
+    public void onInitialize() {
+        SpyEffect.register();
+        PayloadTypeRegistry.playS2C().register(ExpurgoPayload.ID, ExpurgoPayload.CODEC);
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> RelicsCommand.register(dispatcher));
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> RelicRegistry.load(server.getRegistryManager()));
+        RelicEffects.init();
+        RelicAbilities.init();
+        Expurgo.init();
+        LOGGER.info("Irmandade (IMDD) carregado.");
+    }
+}
