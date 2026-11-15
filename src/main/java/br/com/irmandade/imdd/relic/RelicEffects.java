@@ -16,6 +16,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Map;
 import java.util.UUID;
 
@@ -47,21 +49,13 @@ public final class RelicEffects {
     }
 
     private static void tickPlayer(ServerPlayerEntity p, int tick) {
-        // Fazendeiro (calça equipada): Herói da Vila V
-        if (RelicRegistry.is(p.getEquippedStack(EquipmentSlot.LEGS), "fazendeiro")) {
-            refresh(p, StatusEffects.HERO_OF_THE_VILLAGE, 4);
-        }
-        // Nether (capacete equipado): Resistência ao Fogo
-        if (RelicRegistry.is(p.getEquippedStack(EquipmentSlot.HEAD), "nether")) {
-            refresh(p, StatusEffects.FIRE_RESISTANCE, 0);
-        }
-        // Sorte (em qualquer lugar do inventário): Sorte X
+        sustain(p, "fazendeiro", RelicRegistry.is(p.getEquippedStack(EquipmentSlot.LEGS), "fazendeiro"), StatusEffects.HERO_OF_THE_VILLAGE, 4);
+        sustain(p, "nether", RelicRegistry.is(p.getEquippedStack(EquipmentSlot.HEAD), "nether"), StatusEffects.FIRE_RESISTANCE, 0);
+        boolean luck = false;
         for (int i = 0; i < p.getInventory().size(); i++) {
-            if (RelicRegistry.is(p.getInventory().getStack(i), "sorte")) {
-                refresh(p, StatusEffects.LUCK, 9);
-                break;
-            }
+            if (RelicRegistry.is(p.getInventory().getStack(i), "sorte")) { luck = true; break; }
         }
+        sustain(p, "sorte", luck, StatusEffects.LUCK, 9);
         // Invasor (calça equipada): Bad Omen 5s ligado / 10s desligado; não ativa com Raid Omen/Trial Omen
         if (RelicRegistry.is(p.getEquippedStack(EquipmentSlot.LEGS), "invasor")) {
             int next = INVASOR_NEXT.getOrDefault(p.getUuid(), 0);
@@ -71,6 +65,19 @@ public final class RelicEffects {
             }
         } else {
             INVASOR_NEXT.remove(p.getUuid());
+        }
+    }
+
+    private static final Map<String, Set<UUID>> ACTIVE = new HashMap<>();
+
+    /** Mantém o efeito enquanto a condição valer (duração longa => sem piscar, sem visual de beacon) e remove ao desequipar. */
+    private static void sustain(ServerPlayerEntity p, String key, boolean cond, RegistryEntry<StatusEffect> effect, int amp) {
+        Set<UUID> set = ACTIVE.computeIfAbsent(key, k -> new HashSet<>());
+        if (cond) {
+            p.addStatusEffect(new StatusEffectInstance(effect, 220, amp, false, false, true));
+            set.add(p.getUuid());
+        } else if (set.remove(p.getUuid())) {
+            p.removeStatusEffect(effect);
         }
     }
 

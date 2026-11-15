@@ -167,7 +167,7 @@ public final class RelicAbilities {
         }
     }
 
-    // ---------------- Invisibilidade (nível 11 + armadura invisível) ----------------
+    // ---------------- Invisibilidade (nível 11; a armadura é escondida no cliente, ver LivingEntityRendererMixin) ----------------
 
     private static void invisTick(ServerPlayerEntity p, int tick) {
         UUID id = p.getUuid();
@@ -175,16 +175,13 @@ public final class RelicAbilities {
         Integer start = INVIS_START.get(id);
         if (equipped) {
             INVIS_END.remove(id);
-            if (start == null) { INVIS_START.put(id, tick); return; }
-            int t = tick - start;
-            if (t == 10) { MASKED_IDS.add(p.getId()); broadcastEquipment(p); }   // 1º: a armadura some (delay 10 ticks)
-            if (t >= 20) p.addStatusEffect(new StatusEffectInstance(StatusEffects.INVISIBILITY, 40, 10, true, false, false)); // 2º: o player some
-            if (t > 10 && tick % 20 == 0) broadcastEquipment(p);                 // reforça contra pacotes que vazem a armadura
+            if (start == null) { INVIS_START.put(id, tick); return; }      // armadura some já ao equipar
+            if (tick - start >= 10) {                                        // 10 ticks depois: o player some
+                p.addStatusEffect(new StatusEffectInstance(StatusEffects.INVISIBILITY, 220, 10, false, false, false));
+            }
         } else if (start != null) {
-            INVIS_START.remove(id);
-            MASKED_IDS.remove(p.getId());
-            broadcastEquipment(p);                                               // 1º: a armadura aparece
-            INVIS_END.put(id, tick + 10);                                        // 2º: depois acaba o efeito
+            INVIS_START.remove(id);                                          // armadura aparece ao tirar a bota
+            INVIS_END.put(id, tick + 10);                                    // 10 ticks depois: acaba o efeito
         }
         Integer end = INVIS_END.get(id);
         if (end != null && tick >= end) {
@@ -193,34 +190,7 @@ public final class RelicAbilities {
         }
     }
 
-    private static void broadcastEquipment(ServerPlayerEntity p) {
-        List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>();
-        for (EquipmentSlot s : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
-            list.add(Pair.of(s, p.getEquippedStack(s).copy()));
-        }
-        ((ServerWorld) p.getEntityWorld()).getChunkManager().sendToOtherNearbyPlayers(p, new EntityEquipmentUpdateS2CPacket(p.getId(), list));
-    }
-
-    /** Chamado pelo mixin do pacote: esconde tudo, menos elytra, cabeças de mob/player e abóbora. */
-    public static List<Pair<EquipmentSlot, ItemStack>> maskEquipment(List<Pair<EquipmentSlot, ItemStack>> list) {
-        List<Pair<EquipmentSlot, ItemStack>> out = new ArrayList<>();
-        for (Pair<EquipmentSlot, ItemStack> pair : list) {
-            EquipmentSlot slot = pair.getFirst();
-            ItemStack st = pair.getSecond();
-            ItemStack keep = st;
-            if (slot == EquipmentSlot.HEAD) {
-                if (!(st.isOf(Items.CARVED_PUMPKIN) || st.isIn(ItemTags.SKULLS))) keep = ItemStack.EMPTY;
-            } else if (slot == EquipmentSlot.CHEST) {
-                if (!st.isOf(Items.ELYTRA)) keep = ItemStack.EMPTY;
-            } else if (slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET) {
-                keep = ItemStack.EMPTY;
-            }
-            out.add(Pair.of(slot, keep));
-        }
-        return out;
-    }
-
-    // ---------------- Explorador: caminho de magma sobre a lava ----------------
+    // ---------------- Explorador: magma que quebra em estágios sobre a lava ----------------
 
     private static void lavaWalk(MinecraftServer server, int tick) {
         for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
@@ -232,24 +202,11 @@ public final class RelicAbilities {
                 if (pos.getSquaredDistance(base) > r * r + 1) continue;
                 BlockState st = w.getBlockState(pos);
                 if (st.isOf(Blocks.LAVA) && st.getFluidState().isStill() && w.getBlockState(pos.up()).isAir()) {
-                    w.setBlockState(pos, Blocks.MAGMA_BLOCK.getDefaultState());
-                    MAGMA.put(new Key(w.getRegistryKey().getValue(), pos.asLong()), tick + 60 + p.getRandom().nextInt(60));
+                    BlockPos fixed = pos.toImmutable();
+                    w.setBlockState(fixed, ModBlocks.FROSTED_MAGMA.getDefaultState());
+                    w.scheduleBlockTick(fixed, ModBlocks.FROSTED_MAGMA, 20 + p.getRandom().nextInt(15));
                 }
             }
-        }
-        Iterator<Map.Entry<Key, Integer>> it = MAGMA.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Key, Integer> e = it.next();
-            if (tick < e.getValue()) continue;
-            ServerWorld w = server.getWorld(RegistryKey.of(RegistryKeys.WORLD, e.getKey().dim()));
-            if (w == null) { it.remove(); continue; }
-            BlockPos pos = BlockPos.fromLong(e.getKey().pos());
-            if (!w.getBlockState(pos).isOf(Blocks.MAGMA_BLOCK)) { it.remove(); continue; }
-            boolean someoneOn = !w.getPlayers(pl -> RelicRegistry.is(pl.getEquippedStack(EquipmentSlot.FEET), "explorador")
-                    && pl.squaredDistanceTo(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5) < 16).isEmpty();
-            if (someoneOn) { e.setValue(tick + 20); continue; }
-            w.setBlockState(pos, Blocks.LAVA.getDefaultState());
-            it.remove();
         }
     }
 }

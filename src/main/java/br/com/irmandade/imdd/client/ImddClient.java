@@ -10,7 +10,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.util.Identifier;
 
-/** Cliente: marca d'água no F3 (direita, meio) e tom vermelho na tela durante o Dia do Expurgo. */
+/** Cliente: marca d'água no F3 (direita, meio). */
 public class ImddClient implements ClientModInitializer {
     private static final String LINE1 = "Irmandade By LucxMC";
     private static final String LINE2 = "-. .. -. --. ..- . -- / . ... - .- / ... . --. ..- .-. --- /";
@@ -27,8 +27,6 @@ public class ImddClient implements ClientModInitializer {
     private static void render(DrawContext ctx, RenderTickCounter tick) {
         MinecraftClient mc = MinecraftClient.getInstance();
         int w = ctx.getScaledWindowWidth(), h = ctx.getScaledWindowHeight();
-
-        if (endMs > System.currentTimeMillis()) ctx.fill(0, 0, w, h, 0x30B30000); // clima vermelho do Expurgo
 
         if (mc.getDebugHud().shouldShowDebugHud()) {
             int y = h / 2 - 10;

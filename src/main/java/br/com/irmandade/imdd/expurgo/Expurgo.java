@@ -71,7 +71,7 @@ public final class Expurgo {
         save();
 
         if (!was) run(s, "execute in minecraft:overworld run time set 18000"); // meia-noite de lua cheia
-        showTitle(s, was ? "+" + (24 * Math.max(1, count)) + " horas adicionadas!" : "24 Horas Sem Regras ativado!");
+        showTitle(s, was ? "O Tempo foi Extendido!" : "24 Horas Sem Regras ativado!");
 
         LightningEntity bolt = EntityType.LIGHTNING_BOLT.create(world, SpawnReason.TRIGGERED);
         if (bolt != null) {
@@ -82,7 +82,7 @@ public final class Expurgo {
         for (ServerPlayerEntity p : s.getPlayerManager().getPlayerList()) sync(p);
     }
 
-    private static void end(MinecraftServer s) {
+    public static void end(MinecraftServer s) {
         endMillis = 0;
         save();
         ExpurgoNpcs.discardAll(s);

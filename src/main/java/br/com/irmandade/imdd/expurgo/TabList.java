@@ -19,7 +19,7 @@ public final class TabList {
         MutableText header = Text.empty().append(line);
         if (Expurgo.isActive()) {
             header.append(Text.literal("\n"))
-                  .append(Text.literal("☠ Dia do Expurgo ☠").styled(s -> s.withColor(0x9f0206).withBold(true)))
+                  .append(Text.literal("Dia do Expurgo").styled(s -> s.withColor(0x9f0206).withBold(false)))
                   .append(Text.literal("\n"))
                   .append(Text.literal(format(Expurgo.remainingMillis())).formatted(Formatting.GRAY));
         }

@@ -1,7 +1,9 @@
 package br.com.irmandade.imdd;
 
 import br.com.irmandade.imdd.expurgo.Expurgo;
+import br.com.irmandade.imdd.expurgo.ExpurgoCommand;
 import br.com.irmandade.imdd.net.ExpurgoPayload;
+import br.com.irmandade.imdd.relic.ModBlocks;
 import br.com.irmandade.imdd.relic.RelicAbilities;
 import br.com.irmandade.imdd.relic.RelicEffects;
 import br.com.irmandade.imdd.relic.RelicRegistry;
@@ -20,9 +22,10 @@ public class Imdd implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModBlocks.register();
         SpyEffect.register();
         PayloadTypeRegistry.playS2C().register(ExpurgoPayload.ID, ExpurgoPayload.CODEC);
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> RelicsCommand.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> { RelicsCommand.register(dispatcher); ExpurgoCommand.register(dispatcher); });
         ServerLifecycleEvents.SERVER_STARTED.register(server -> RelicRegistry.load(server.getRegistryManager()));
         RelicEffects.init();
         RelicAbilities.init();
