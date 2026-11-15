@@ -19,6 +19,6 @@ public final class ModBlocks {
         Identifier id = Identifier.of(Imdd.MOD_ID, "frosted_magma");
         RegistryKey<Block> key = RegistryKey.of(RegistryKeys.BLOCK, id);
         FROSTED_MAGMA = Registry.register(Registries.BLOCK, id,
-                new FrostedMagmaBlock(AbstractBlock.Settings.copy(Blocks.MAGMA_BLOCK).registryKey(key)));
+                new FrostedMagmaBlock(AbstractBlock.Settings.copy(Blocks.MAGMA_BLOCK).registryKey(key).nonOpaque()));
     }
 }

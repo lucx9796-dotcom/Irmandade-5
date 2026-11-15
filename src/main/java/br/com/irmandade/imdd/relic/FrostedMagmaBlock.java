@@ -9,6 +9,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 
 /** Magma que "quebra" em 4 estágios (como o gelo do Frost Walker) e volta a ser lava. */
@@ -39,5 +40,10 @@ public class FrostedMagmaBlock extends MagmaBlock {
             }
         }
         world.scheduleBlockTick(pos, this, 20 + random.nextInt(21));
+    }
+
+    /** Não desenha a face entre dois blocos iguais (igual ao gelo/vidro). */
+    protected boolean isSideInvisible(BlockState state, BlockState stateFrom, Direction direction) {
+        return stateFrom.isOf(this) || super.isSideInvisible(state, stateFrom, direction);
     }
 }

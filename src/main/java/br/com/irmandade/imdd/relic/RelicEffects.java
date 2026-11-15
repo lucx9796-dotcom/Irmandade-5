@@ -23,6 +23,9 @@ import java.util.UUID;
 
 /** Propriedades das relíquias (fase 1): Fazendeiro, Sorte, Nether, Invasor, Defesa, Stomper. */
 public final class RelicEffects {
+    /** Invasor: tempo ligado e desligado em ticks (20 ticks = 1s). Mude aqui para ajustar. */
+    private static final int INVASOR_ON_TICKS = 100;   // 5s com Bad Omen
+    private static final int INVASOR_OFF_TICKS = 100;  // 5s sem efeito
     private static final Map<UUID, Integer> INVASOR_NEXT = new HashMap<>();
 
     private RelicEffects() {}
@@ -60,8 +63,8 @@ public final class RelicEffects {
         if (RelicRegistry.is(p.getEquippedStack(EquipmentSlot.LEGS), "invasor")) {
             int next = INVASOR_NEXT.getOrDefault(p.getUuid(), 0);
             if (tick >= next && !p.hasStatusEffect(StatusEffects.RAID_OMEN) && !p.hasStatusEffect(StatusEffects.TRIAL_OMEN)) {
-                p.addStatusEffect(new StatusEffectInstance(StatusEffects.BAD_OMEN, 100, 0, false, true, true));
-                INVASOR_NEXT.put(p.getUuid(), tick + 100 + 200);
+                p.addStatusEffect(new StatusEffectInstance(StatusEffects.BAD_OMEN, INVASOR_ON_TICKS, 0, false, true, true));
+                INVASOR_NEXT.put(p.getUuid(), tick + INVASOR_ON_TICKS + INVASOR_OFF_TICKS);
             }
         } else {
             INVASOR_NEXT.remove(p.getUuid());

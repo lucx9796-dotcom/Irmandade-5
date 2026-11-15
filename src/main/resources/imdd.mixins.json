@@ -3,6 +3,6 @@
   "package": "br.com.irmandade.imdd.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": ["ItemEntityMixin", "LivingEntityEquipMixin"],
-  "client": ["client.LivingEntityRendererMixin"],
+  "client": ["client.LivingEntityRendererMixin", "client.GameRendererMixin"],
   "injectors": { "defaultRequire": 1 }
 }

@@ -1,43 +1,56 @@
 package br.com.irmandade.imdd.expurgo;
 
+import br.com.irmandade.imdd.tab.TabConfig;
+import br.com.irmandade.imdd.tab.TabText;
 import net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
+import java.util.List;
 import java.util.Locale;
 
-/** Tab: linhas ciano, Ping/TPS, "Feito por: LucxMC_", irmandade.gg. No Expurgo o aviso fica no topo (header). */
+/** Monta o tab a partir de TabConfig (editável pelo comando /tab). */
 public final class TabList {
     private TabList() {}
 
+    public static void updateAll(MinecraftServer server) {
+        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) update(server, p);
+    }
+
     public static void update(MinecraftServer server, ServerPlayerEntity p) {
-        Text line = Text.literal("━".repeat(28)).formatted(Formatting.AQUA);
+        p.networkHandler.sendPacket(new PlayerListHeaderS2CPacket(
+                build(server, p, TabConfig.HEADER), build(server, p, TabConfig.FOOTER)));
+    }
 
-        MutableText header = Text.empty().append(line);
-        if (Expurgo.isActive()) {
-            header.append(Text.literal("\n"))
-                  .append(Text.literal("Dia do Expurgo").styled(s -> s.withColor(0x9f0206).withBold(false)))
-                  .append(Text.literal("\n"))
-                  .append(Text.literal(format(Expurgo.remainingMillis())).formatted(Formatting.GRAY));
+    private static Text build(MinecraftServer server, ServerPlayerEntity p, List<String> lines) {
+        MutableText out = Text.empty();
+        boolean first = true;
+        for (String raw : lines) {
+            List<String> expanded;
+            if (raw.trim().equals("%expurgo%")) {
+                if (!Expurgo.isActive()) continue; // sem Expurgo, a linha some
+                expanded = List.of("&#9f0206&lDia do Expurgo", "&7" + format(Expurgo.remainingMillis()));
+            } else {
+                expanded = List.of(replace(server, p, raw));
+            }
+            for (String line : expanded) {
+                if (!first) out.append(Text.literal("\n"));
+                first = false;
+                out.append(TabText.parse(line));
+            }
         }
+        return out;
+    }
 
+    private static String replace(MinecraftServer server, ServerPlayerEntity p, String s) {
         double tps = Math.min(20.0, 1000.0 / Math.max(server.getAverageTickTime(), 1.0f));
-        MutableText footer = Text.empty()
-                .append(line).append(Text.literal("\n"))
-                .append(Text.literal("Ping: ").formatted(Formatting.GRAY))
-                .append(Text.literal(p.networkHandler.getLatency() + "ms").formatted(Formatting.GREEN))
-                .append(Text.literal(" – TPS: ").formatted(Formatting.GRAY))
-                .append(Text.literal(String.format(Locale.ROOT, "%.1f", tps)).formatted(Formatting.GREEN))
-                .append(Text.literal("\n"))
-                .append(Text.literal("Feito por: ").formatted(Formatting.GRAY))
-                .append(Text.literal("LucxMC_").formatted(Formatting.AQUA))
-                .append(Text.literal("\n\n"))
-                .append(Text.literal("irmandade.gg").formatted(Formatting.GRAY));
-
-        p.networkHandler.sendPacket(new PlayerListHeaderS2CPacket(header, footer));
+        return s.replace("%ping%", String.valueOf(p.networkHandler.getLatency()))
+                .replace("%tps%", String.format(Locale.ROOT, "%.1f", tps))
+                .replace("%player%", p.getName().getString())
+                .replace("%online%", String.valueOf(server.getPlayerManager().getPlayerList().size()))
+                .replace("%expurgo_time%", format(Expurgo.remainingMillis()));
     }
 
     private static String format(long ms) {

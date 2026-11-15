@@ -21,8 +21,8 @@ public class RelicsMenu extends GenericContainerScreenHandler {
 
     private static Text title() {
         MutableText t = Text.literal("IMDD").setStyle(Style.EMPTY.withColor(0x8844eb).withBold(true).withItalic(false));
-        t.append(Text.literal("»").setStyle(Style.EMPTY.withColor(0xAAAAAA).withItalic(false)));
-        t.append(Text.literal(" Relíquia").setStyle(Style.EMPTY.withColor(0x2e2e2e).withItalic(false)));
+        t.append(Text.literal("»").setStyle(Style.EMPTY.withColor(0xAAAAAA).withBold(false).withItalic(false)));
+        t.append(Text.literal(" Relíquia").setStyle(Style.EMPTY.withColor(0x2e2e2e).withBold(false).withItalic(false)));
         return t;
     }
 

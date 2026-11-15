@@ -48,7 +48,7 @@ public final class Expurgo {
     }
 
     public static void init() {
-        ServerLifecycleEvents.SERVER_STARTED.register(s -> { server = s; load(); ExpurgoNpcs.load(); });
+        ServerLifecycleEvents.SERVER_STARTED.register(s -> { server = s; load(); ExpurgoNpcs.load(); br.com.irmandade.imdd.tab.TabConfig.load(); });
         ServerLifecycleEvents.SERVER_STOPPING.register(s -> save());
         ServerTickEvents.END_SERVER_TICK.register(Expurgo::tick);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, s) -> {

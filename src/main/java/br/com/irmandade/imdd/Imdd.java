@@ -25,7 +25,7 @@ public class Imdd implements ModInitializer {
         ModBlocks.register();
         SpyEffect.register();
         PayloadTypeRegistry.playS2C().register(ExpurgoPayload.ID, ExpurgoPayload.CODEC);
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> { RelicsCommand.register(dispatcher); ExpurgoCommand.register(dispatcher); });
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> { RelicsCommand.register(dispatcher); ExpurgoCommand.register(dispatcher); br.com.irmandade.imdd.tab.TabCommand.register(dispatcher); });
         ServerLifecycleEvents.SERVER_STARTED.register(server -> RelicRegistry.load(server.getRegistryManager()));
         RelicEffects.init();
         RelicAbilities.init();
