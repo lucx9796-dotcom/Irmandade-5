@@ -18,6 +18,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stats;
@@ -27,6 +29,7 @@ import net.minecraft.world.World;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Entrega de relíquias:
@@ -44,6 +47,7 @@ public final class RelicDelivery {
     private static final Set<String> KNOWN = new HashSet<>();                    // jogadores já avaliados
     private static final Map<UUID, UUID> EGG_OWNER = new HashMap<>();            // ovo (item) -> quem jogou
     private static final Random RANDOM = new Random();
+    private static final Predicate<ServerCommandSource> OP = CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK);
 
     private RelicDelivery() {}
 
@@ -57,7 +61,13 @@ public final class RelicDelivery {
 
     // ---------- jogador novo ----------
 
+    /** Jogadores com OP não recebem relíquia no baú do fim. */
+    private static boolean isOp(ServerPlayerEntity p) {
+        try { return OP.test(p.getCommandSource()); } catch (Exception e) { return false; }
+    }
+
     private static void onJoin(ServerPlayerEntity p) {
+        if (isOp(p)) return;
         String uuid = p.getUuid().toString();
         if (KNOWN.contains(uuid)) return;
         KNOWN.add(uuid);
@@ -80,10 +90,7 @@ public final class RelicDelivery {
         }
         DELIVERED.put(id, uuid);
         save();
-        p.sendMessage(Text.empty()
-                .append(TabText.parse("&dIMDD &7» &fVocê recebeu a "))
-                .append(RelicRegistry.copyOf(id).getName())
-                .append(TabText.parse(" &fno seu baú do fim!")), false);
+        p.sendMessage(TabText.parse("&dIMDD &7» &fVocê recebeu uma relíquia no seu baú do fim!"), false);
     }
 
     private static String pickFree() {
@@ -135,15 +142,11 @@ public final class RelicDelivery {
         }
         ItemStack relic = RelicRegistry.copyOf("dragao");
         if (relic.isEmpty()) return;
-        ItemStack show = relic.copy();
         p.getInventory().insertStack(relic);
         if (!relic.isEmpty()) p.dropItem(relic, false);
         DELIVERED.put("dragao", p.getUuid().toString());
         save();
-        p.sendMessage(Text.empty()
-                .append(TabText.parse("&dIMDD &7» &fVocê conquistou a "))
-                .append(show.getName())
-                .append(TabText.parse("&f!")), false);
+        p.sendMessage(TabText.parse("&dIMDD &7» &fVocê conquistou uma relíquia!"), false);
     }
 
     // ---------- administração (/relics entregues, /relics liberar <id>) ----------

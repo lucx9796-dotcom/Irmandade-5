@@ -10,7 +10,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.util.Identifier;
 
-/** Cliente: marca d'água no F3 (direita, meio). */
+/** Cliente: marca d'água no F3 (direita, embaixo). */
 public class ImddClient implements ClientModInitializer {
     private static final String LINE1 = "Irmandade By LucxMC";
     private static final String LINE2 = "-. .. -. --. ..- . -- / . ... - .- / ... . --. ..- .-. --- /";
@@ -36,7 +36,7 @@ public class ImddClient implements ClientModInitializer {
         int w = ctx.getScaledWindowWidth(), h = ctx.getScaledWindowHeight();
 
         if (mc.getDebugHud().shouldShowDebugHud()) {
-            int y = h / 2 - 10;
+            int y = h - 25;   // canto inferior direito, abaixo das linhas do F3
             drawLine(ctx, mc, LINE1, w, y, 0xFFFF55FF);       // Light Purple
             drawLine(ctx, mc, LINE2, w, y + 9, 0xFFFF5555);   // Light Red
         }
