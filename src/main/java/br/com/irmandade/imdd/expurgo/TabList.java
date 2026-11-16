@@ -1,5 +1,6 @@
 package br.com.irmandade.imdd.expurgo;
 
+import br.com.irmandade.imdd.pvp.PvpState;
 import br.com.irmandade.imdd.tab.TabConfig;
 import br.com.irmandade.imdd.tab.TabText;
 import net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket;
@@ -40,11 +41,19 @@ public final class TabList {
 
     private static List<String> expand(MinecraftServer server, ServerPlayerEntity p, List<String> lines) {
         List<String> out = new ArrayList<>();
+        boolean explicitPvp = false;
+        for (String l : lines) if (l.trim().equals("%pvp%")) explicitPvp = true;
         for (String raw : lines) {
-            if (raw.trim().equals("%expurgo%")) {
-                if (!Expurgo.isActive()) continue; // sem Expurgo, a linha some
-                out.add("&#9f0206&lDia do Expurgo");
-                out.add("&7" + format(Expurgo.remainingMillis()));
+            String t = raw.trim();
+            if (t.equals("%expurgo%")) {
+                if (Expurgo.isActive()) {
+                    out.add("&#9f0206&lDia do Expurgo");
+                    out.add("&7" + format(Expurgo.remainingMillis()));
+                }
+                // sem uma linha %pvp% própria, o aviso de PvP desligado vem logo depois do Expurgo
+                if (!explicitPvp) out.addAll(PvpState.tabLines());
+            } else if (t.equals("%pvp%")) {
+                out.addAll(PvpState.tabLines());
             } else {
                 out.add(replace(server, p, raw));
             }

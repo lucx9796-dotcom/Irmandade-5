@@ -26,12 +26,15 @@ public class Imdd implements ModInitializer {
         br.com.irmandade.imdd.relic.ModRecipes.register();
         SpyEffect.register();
         PayloadTypeRegistry.playS2C().register(ExpurgoPayload.ID, ExpurgoPayload.CODEC);
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> { RelicsCommand.register(dispatcher); ExpurgoCommand.register(dispatcher); br.com.irmandade.imdd.tab.TabCommand.register(dispatcher); });
+        PayloadTypeRegistry.playS2C().register(br.com.irmandade.imdd.vanish.VanishPayload.ID, br.com.irmandade.imdd.vanish.VanishPayload.CODEC);
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> { RelicsCommand.register(dispatcher); ExpurgoCommand.register(dispatcher); br.com.irmandade.imdd.tab.TabCommand.register(dispatcher); br.com.irmandade.imdd.pvp.PvpCommand.register(dispatcher); br.com.irmandade.imdd.vanish.VanishCommand.register(dispatcher); });
         ServerLifecycleEvents.SERVER_STARTED.register(server -> RelicRegistry.load(server.getRegistryManager()));
         RelicEffects.init();
         RelicAbilities.init();
         Expurgo.init();
         br.com.irmandade.imdd.relic.RelicDelivery.init();
+        br.com.irmandade.imdd.pvp.PvpState.init();
+        br.com.irmandade.imdd.vanish.VanishState.init();
         LOGGER.info("Irmandade (IMDD) carregado.");
     }
 }

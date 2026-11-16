@@ -16,6 +16,7 @@ import java.util.List;
  * Linhas do tab (config/imdd/tab.json). Códigos: &cores, &#RRGGBB, &l negrito...
  * Placeholders: %ping% %tps% %player% %online% %expurgo_time%
  * A linha %linha% desenha uma linha reta contínua (ciano) cobrindo a largura do tab; use "&c%linha%" para outra cor.
+ * A linha %pvp% mostra "PVP Desligado" (ciano) + contagem quando o /pvp off está ativo; sem ela, aparece logo após %expurgo%.
  * A linha especial %expurgo% vira "Dia do Expurgo" + contagem (só aparece quando o Expurgo está ativo).
  * O "ポ" do logo é o caractere do resource pack do servidor.
  */

@@ -27,6 +27,7 @@ public class ImddClient implements ClientModInitializer {
                 endMs = payload.remainingMillis() > 0 ? System.currentTimeMillis() + payload.remainingMillis() : 0);
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> endMs = 0);
         TranslucentBlocks.register();
+        VanishClient.init();
         HudElementRegistry.addLast(Identifier.of("imdd", "overlay"), ImddClient::render);
     }
 
